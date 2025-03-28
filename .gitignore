@@ -48,6 +48,7 @@ lerna-debug.log*
 node_modules
 .env
 *.local
+pruebas.js
 
 # Editor directories and files
 .vscode/*

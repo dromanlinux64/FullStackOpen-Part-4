@@ -4,6 +4,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "lodash": "^4.17.21",
     "mongoose": "^8.12.1"
   },
   "name": "fullstackopen_part4",
@@ -17,7 +18,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "lint": "eslint .",
-    "test": "node --test"    
+    "test": "node --test"
   },
   "author": "Douglas Roman",
   "license": "ISC"
