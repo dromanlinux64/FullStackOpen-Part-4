@@ -42,9 +42,10 @@ const dummy = (blogs) => {
     if (blogs.length === 0) return {}
     const result1 = groupBy(blogs,"author")
     //console.log("result1",result1)
-    const result2 = map(result1,(valor,author)=>{
-       const sumLikes =  result1[author].reduce((likes,blog)=>{
-           return likes+blog.likes
+    const result2 = map(result1,(blogsAuthor,author)=>{
+        //const sumLikes =  result1[author].reduce((likes,blog)=>{
+        const sumLikes =  blogsAuthor.reduce((likes,blog)=>{
+                return likes+blog.likes
        },0)
        return  {"author":author, "likes":sumLikes}
     })
