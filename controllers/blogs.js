@@ -1,8 +1,14 @@
 const blogsRouter = require('express').Router()
+//const jwt = require('jsonwebtoken')
 const Blog = require('../models/blog.js')
+const User = require('../models/user.js')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({})
+  .populate("user", {
+    username: 1,
+    name:1
+  })
   response.json(blogs)
 })
 
@@ -21,18 +27,58 @@ blogsRouter.get('/:id', async (request, response) => {
        response.status(204).end()
   })
   .catch(error =>next(error))  */
-  await Blog.findByIdAndDelete(request.params.id)
-  response.status(204).end()
+/*   const token = request.token
+
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  console.log("\ndecodedToken=",decodedToken)
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token invalid' })
+    }
+  const user = await User.findById(decodedToken.id) */
+  
+  const user = request.user 
+  const blog = await Blog.findById(request.params.id)
+  //console.log("----\nuser=",user)
+  //console.log("\nblog=",blog)
+  //console.log("----")  
+  if(user.id.toString()===blog.user.toString()){
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } else{
+    response.status(401).json({ error: 'Unauthorized user' })
+  }
 }) 
 
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  //console.log("\nrequest.get(authorization)= ",authorization)
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
+/*   const token = request.token
+
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  console.log("\ndecodedToken=",decodedToken)
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token invalid' })
+    }
+  const user = await User.findById(decodedToken.id) */
+
+  //const user = await User.findById(body.userId)
+  const user = request.user 
+  //console.log("user  ",user)
+  //console.log("body.userId  ",body.userId)
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes|| 0,
+    user: user.id
   })
 
   /*blog.save()
@@ -42,6 +88,9 @@ blogsRouter.post('/', async (request, response) => {
   .catch(err => next(err)
   )*/
   const savedBlog = await blog.save()
+  user.blogs = user.blogs.concat(savedBlog._id)
+  await user.save() 
+
   response.status(201).json(savedBlog)
 
 })
